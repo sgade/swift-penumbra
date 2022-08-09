@@ -14,14 +14,11 @@ class PenumbraGenerator {
     static let outputFilename = "Penumbra.swift"
 
     static func main() {
-        var inputFileUrl: URL
-        if #available(macOS 13.0, *) {
-            inputFileUrl = URL(filePath: FileManager.default.currentDirectoryPath)
-                .appending(path: inputFilename, directoryHint: .notDirectory)
-        } else {
-            inputFileUrl = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
-                .appendingPathComponent(inputFilename, isDirectory: false)
+        guard let inputFileUrl = Bundle.module.url(forResource: "penumbra", withExtension: "tsv") else {
+            print("ERROR: Cannot find source file penumbra.tsv")
+            return
         }
+
         var outputFileUrl: URL
         if #available(macOS 13.0, *) {
             outputFileUrl = URL(filePath: FileManager.default.currentDirectoryPath)

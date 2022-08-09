@@ -24,6 +24,14 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(name: "Penumbra", dependencies: []),
         .testTarget(name: "PenumbraTests", dependencies: ["Penumbra"]),
-        .executableTarget(name: "PenumbraGenerator", dependencies: [.product(name: "Stencil", package: "Stencil")])
+
+        // TODO: implement as a custom build plugin once source dependencies are supported
+        .executableTarget(name: "PenumbraGenerator",
+                          dependencies: [
+                            .product(name: "Stencil", package: "Stencil")
+                          ],
+                          resources: [
+                            .process("penumbra.tsv")
+                          ])
     ]
 )
