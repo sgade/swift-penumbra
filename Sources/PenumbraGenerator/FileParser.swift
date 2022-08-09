@@ -22,10 +22,10 @@ class FileParser {
         // remove header
         lines.remove(at: lines.startIndex)
 
-        colors = try lines.map { try parse(line: String($0)) }
+        colors = try lines.map { try parse(line: $0) }
     }
 
-    private func parse(line: String) throws -> ColorDefinition {
+    private func parse(line: Substring) throws -> ColorDefinition {
         let columns = line.split(separator: "\t")
 
         return ColorDefinition(set: columns[0],

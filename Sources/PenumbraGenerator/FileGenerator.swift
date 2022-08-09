@@ -16,9 +16,21 @@ class FileGenerator {
     import SwiftUI
 
     extension Color {
-        {% for color in colors %}
-        static let penumbra{{ color.set | capitalize | swift-identifier }}{{ color.palette | capitalize | swift-identifier }}{{ color.name | capitalize | swift-identifier }} = Color(red: {{ color.r | byte-to-float }}, green: {{ color.g | byte-to-float }}, blue: {{ color.b | byte-to-float }})
-        {% endfor %}
+
+        public enum Penumbra {
+    {% for setName, set in color-sets %}
+            public enum {{ setName | capitalize | swift-identifier }} {
+    {% for paletteName, palette in set %}
+                public enum {{ paletteName | capitalize | swift-identifier }} {
+    {% for color in palette %}
+                    public static let {{ color.name | swift-identifier }} = Color(red: {{ color.r | byte-to-float }}, green: {{ color.g | byte-to-float }}, blue: {{ color.b | byte-to-float }})
+    {% endfor %}
+                }
+    {% endfor %}
+            }
+    {% endfor %}
+        }
+
     }
     """
 
@@ -27,10 +39,10 @@ class FileGenerator {
     private var stencilExtension: Extension {
         let ext = Extension()
         ext.registerFilter("swift-identifier") { value in
-            guard let string = value as? String else {
+            guard let string = value as? any StringProtocol else {
                 return value
             }
-
+            
             return string
                 .replacingOccurrences(of: "+", with: "Plus")
                 .replacingOccurrences(of: "-", with: "Minus")
@@ -61,9 +73,24 @@ class FileGenerator {
 
         let environment = Environment(loader: loader, extensions: extensions)
         let context = [
-            "colors": colors
+            "color-sets": group(colors: colors)
         ]
         return try environment.renderTemplate(name: "colors", context: context)
+    }
+
+    private func group(colors: [ColorDefinition]) -> [Substring: [Substring: [ColorDefinition]]] {
+        colors.group { $0.set }
+            .mapValues {
+                $0.group { $0.palette }
+            }
+    }
+
+}
+
+extension Sequence {
+
+    public func group<Key>(using grouping: (Element) throws -> Key) rethrows -> [Key: [Element]] where Key: Hashable {
+        try Dictionary(grouping: self, by: grouping)
     }
 
 }
