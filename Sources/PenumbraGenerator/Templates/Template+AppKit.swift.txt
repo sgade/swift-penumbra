@@ -1,0 +1,28 @@
+// This file is generated. Edits will be overwritten.
+
+//
+//  {{ filename }}
+//  {{ targetName }}
+//
+
+#if os(macOS)
+import AppKit
+
+extension NSColor {
+
+    public enum Penumbra {
+{% for setName, set in color-sets %}
+        public enum {{ setName | capitalize | swift-identifier }} {
+{% for paletteName, palette in set %}
+            public enum {{ paletteName | capitalize | swift-identifier }} {
+{% for color in palette %}
+                public static let {{ color.name | swift-identifier }} = NSColor(red: {{ color.r | byte-to-float }}, green: {{ color.g | byte-to-float }}, blue: {{ color.b | byte-to-float }}, alpha: 1.0)
+{% endfor %}
+            }
+{% endfor %}
+        }
+{% endfor %}
+    }
+
+}
+#endif

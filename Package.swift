@@ -31,7 +31,8 @@ let package = Package(
                             .product(name: "Stencil", package: "Stencil")
                           ],
                           resources: [
-                            .process("penumbra.tsv")
+                            .process("penumbra.tsv"),
+                            .process("Templates")
                           ])
     ]
 )

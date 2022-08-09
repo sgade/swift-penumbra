@@ -11,7 +11,6 @@ import Foundation
 class PenumbraGenerator {
 
     static let inputFilename = "penumbra.tsv"
-    static let outputFilename = "Penumbra.swift"
 
     static func main() {
         guard let inputFileUrl = Bundle.module.url(forResource: "penumbra", withExtension: "tsv") else {
@@ -19,15 +18,13 @@ class PenumbraGenerator {
             return
         }
 
-        var outputFileUrl: URL
-        if #available(macOS 13.0, *) {
-            outputFileUrl = URL(filePath: FileManager.default.currentDirectoryPath)
+        var outputDirectoryUrl: URL
+        if #available(macOS 13.0, iOS 16.0, *) {
+            outputDirectoryUrl = URL(filePath: FileManager.default.currentDirectoryPath)
                 .appending(path: "Sources/Penumbra", directoryHint: .isDirectory)
-                .appending(path: outputFilename, directoryHint: .notDirectory)
         } else {
-            outputFileUrl = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+            outputDirectoryUrl = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
                 .appendingPathComponent("Sources/Penumbra", isDirectory: true)
-                .appendingPathComponent(outputFilename, isDirectory: false)
         }
 
         do {
@@ -35,10 +32,10 @@ class PenumbraGenerator {
             try parser.load()
             print("Loaded \(parser.colors.count) colors.")
 
-            let generator = FileGenerator(file: outputFileUrl)
+            let generator = FileGenerator(directory: outputDirectoryUrl)
             try generator.generateAndWrite(using: parser.colors)
-            
-            print("Written to \(outputFileUrl.path).")
+
+            print("Written output to \(outputDirectoryUrl.path).")
         } catch {
             print("ERROR: \(error)")
         }

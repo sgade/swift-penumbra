@@ -1,5 +1,10 @@
 // This file is generated. Edits will be overwritten.
 
+//
+//  Penumbra+SwiftUI.swift
+//  Penumbra
+//
+
 import SwiftUI
 
 extension Color {

@@ -1,0 +1,26 @@
+// This file is generated. Edits will be overwritten.
+
+//
+//  {{ filename }}
+//  {{ targetName }}
+//
+
+import SwiftUI
+
+extension Color {
+
+    public enum Penumbra {
+{% for setName, set in color-sets %}
+        public enum {{ setName | capitalize | swift-identifier }} {
+{% for paletteName, palette in set %}
+            public enum {{ paletteName | capitalize | swift-identifier }} {
+{% for color in palette %}
+                public static let {{ color.name | swift-identifier }} = Color(red: {{ color.r | byte-to-float }}, green: {{ color.g | byte-to-float }}, blue: {{ color.b | byte-to-float }})
+{% endfor %}
+            }
+{% endfor %}
+        }
+{% endfor %}
+    }
+
+}

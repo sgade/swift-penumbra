@@ -34,7 +34,7 @@ class FileGenerator {
     }
     """
 
-    public let file: URL
+    public let directory: URL
 
     private var stencilExtension: Extension {
         let ext = Extension()
@@ -58,24 +58,48 @@ class FileGenerator {
         return ext
     }
 
-    init(file: URL) {
-        self.file = file
+    init(directory: URL) {
+        self.directory = directory
     }
 
     public func generateAndWrite(using colors: [ColorDefinition]) throws {
-        let contents = try generate(using: colors)
-        try contents.write(to: file, atomically: true, encoding: .utf8)
+        let targetName = "Penumbra"
+        let templatesForFiles = [
+            "Template+SwiftUI.swift.txt": "Penumbra+SwiftUI.swift",
+            "Template+AppKit.swift.txt": "Penumbra+AppKit.swift",
+            "Template+UIKit.swift.txt": "Penumbra+UIKit.swift"
+        ]
+
+        for (templateName, filename) in templatesForFiles {
+            let contents = try generate(template: templateName,
+                                        using: colors,
+                                        targetName: targetName,
+                                        filename: filename)
+
+            var file: URL
+            if #available(macOS 13.0, iOS 16.0, *) {
+                file = directory.appending(path: filename, directoryHint: .notDirectory)
+            } else {
+                file = directory.appendingPathComponent(filename, isDirectory: false)
+            }
+            try contents.write(to: file, atomically: true, encoding: .utf8)
+        }
     }
 
-    func generate(using colors: [ColorDefinition]) throws -> String {
-        let loader = DictionaryLoader(templates: ["colors": colorTemplate])
+    func generate(template templateName: String,
+                  using colors: [ColorDefinition],
+                  targetName: String,
+                  filename: String) throws -> String {
+        let loader = FileSystemLoader(bundle: [Bundle.module])
         let extensions = [stencilExtension]
 
         let environment = Environment(loader: loader, extensions: extensions)
-        let context = [
+        let context: [String: Any] = [
+            "targetName": targetName,
+            "filename": filename,
             "color-sets": group(colors: colors)
         ]
-        return try environment.renderTemplate(name: "colors", context: context)
+        return try environment.renderTemplate(name: templateName, context: context)
     }
 
     private func group(colors: [ColorDefinition]) -> [Substring: [Substring: [ColorDefinition]]] {
